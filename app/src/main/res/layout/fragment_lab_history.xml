@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    xmlns:custom="http://schemas.android.com/apk/res-auto">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="8dp">
+        <AutoCompleteTextView
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:inputType="text"
+            android:maxLines="1"
+            android:singleLine="true"
+            android:layout_weight="1"
+            android:background="@drawable/rect_input"
+            android:textColor="@color/Black"
+            android:padding="8dp"
+            android:hint="Search"
+            android:textCursorDrawable="@null"
+            android:id="@+id/autoCompleteStudent"/>
+
+        <com.dd.processbutton.iml.ActionProcessButton
+            android:layout_marginLeft="8dp"
+            android:id="@+id/ScanButton"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:text="Scan"
+            android:textColor="@android:color/white"
+            custom:pb_colorComplete="@color/Orange"
+            custom:pb_colorNormal="@color/blue_normal"
+            custom:pb_colorPressed="@color/blue_pressed"
+            custom:pb_colorProgress="@color/Orange"
+            custom:pb_textProgress="@string/loading"
+            custom:pb_textComplete="@string/signed_in"
+            custom:pb_colorError="@color/red_error"/>
+
+    </LinearLayout>
+
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_weight="1">
+
+        <ListView
+            android:id="@+id/lab_list_student"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:fastScrollEnabled="true">
+        </ListView>
+
+    </LinearLayout>
+
+
+    <LinearLayout
+        android:id="@+id/lab_list_container"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+        <TextView
+            android:id="@+id/lab_list_status"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textStyle="bold"
+            android:gravity="center"
+            />
+    </LinearLayout>
+
+
+
+
+</LinearLayout>

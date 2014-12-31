@@ -1,0 +1,17 @@
+<resources>
+    
+    <!-- Strings related to login -->
+    <string name="prompt_username">Username</string>
+    <string name="prompt_password">Password</string>
+    <string name="action_sign_in">Sign In</string>
+    <string name="action_submit_short">Submit</string>
+    <string name="action_next_short">Next</string>
+
+    <string name="error_invalid_username">Username is invalid</string>
+    <string name="error_invalid_password">Password is invalid</string>
+    <string name="error_incorrect_password">Username or password is incorrect</string>
+    <string name="error_field_required">This field is required</string>
+
+    <string name="loading">Loading</string>
+    <string name="signed_in">Signed In</string>
+</resources>

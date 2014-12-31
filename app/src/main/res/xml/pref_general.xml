@@ -1,0 +1,12 @@
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <ListPreference
+        android:key="@string/pref_display_method_key"
+        android:title="@string/pref_title_display_method"
+        android:defaultValue="@string/pref_display_method_default"
+        android:entries="@array/pref_display_method_titles"
+        android:entryValues="@array/pref_display_method_values"
+        android:negativeButtonText="@null"
+        android:positiveButtonText="@null" />
+
+</PreferenceScreen>

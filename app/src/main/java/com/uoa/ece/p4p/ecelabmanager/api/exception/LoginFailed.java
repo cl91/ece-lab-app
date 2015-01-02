@@ -1,4 +1,4 @@
-package com.uoa.ece.p4p.ecelabmanager.exception;
+package com.uoa.ece.p4p.ecelabmanager.api.exception;
 
 /**
  * Created by chang on 30/12/14.

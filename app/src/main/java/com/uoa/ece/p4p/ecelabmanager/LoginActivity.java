@@ -26,11 +26,9 @@ import android.widget.EditText;
 import android.widget.TextView;
 
 import com.dd.processbutton.iml.ActionProcessButton;
-import com.uoa.ece.p4p.ecelabmanager.exception.LoginFailed;
+import com.uoa.ece.p4p.ecelabmanager.api.Server;
+import com.uoa.ece.p4p.ecelabmanager.api.exception.LoginFailed;
 import com.uoa.ece.p4p.ecelabmanager.utility.ProgressGenerator;
-
-import java.util.List;
-
 
 
 public class LoginActivity extends Activity {

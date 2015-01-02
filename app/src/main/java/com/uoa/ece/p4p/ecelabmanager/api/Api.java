@@ -1,6 +1,4 @@
-package com.uoa.ece.p4p.ecelabmanager;
-
-import android.util.Log;
+package com.uoa.ece.p4p.ecelabmanager.api;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
@@ -8,9 +6,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
 import java.net.URL;
-import java.net.URLEncoder;
 
 /**
  * Created by chang on 30/12/14.
@@ -45,6 +41,10 @@ public class Api {
     }
 
     public String make_request(String api, String query) throws IOException {
-        return make_request_no_auth(api, "auth="+auth+"&"+query);
+        return make_request_no_auth(api, "auth=" + auth + "&" + query);
+    }
+
+    public String make_request(String api) throws IOException {
+        return make_request_no_auth(api, "auth=" + auth);
     }
 }

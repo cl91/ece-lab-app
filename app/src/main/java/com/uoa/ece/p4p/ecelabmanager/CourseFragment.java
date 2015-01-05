@@ -11,6 +11,7 @@ package com.uoa.ece.p4p.ecelabmanager;
 
 import android.app.Fragment;
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -27,6 +28,7 @@ import com.uoa.ece.p4p.ecelabmanager.api.Server;
 import org.json.JSONException;
 
 import java.io.IOException;
+import java.lang.reflect.Array;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -47,14 +49,8 @@ public class CourseFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        try {
-            ArrayList<Course> courses = Server.get_courses();
-            mCourseListAdapter = new CourseListAdapter(getActivity(), courses);
-        } catch (Exception e) {
-            Toast.makeText(getActivity().getApplicationContext(),
-                    "Failed to get courses: " + e.getMessage(), Toast.LENGTH_LONG);
-        }
+        mCourseListAdapter = new CourseListAdapter(getActivity());
+        new GetCoursesTask().execute();
     }
 
     @Override
@@ -74,5 +70,28 @@ public class CourseFragment extends Fragment {
         });
 
         return rootView;
+    }
+
+    class GetCoursesTask extends AsyncTask<Void, Void, ArrayList<Course>> {
+        private Throwable e;
+        @Override
+        protected ArrayList<Course> doInBackground(Void... voids) {
+            try {
+                return Server.get_courses();
+            } catch (Throwable e) {
+                this.e = e;
+                return null;
+            }
+        }
+
+        protected void onPostExecute(ArrayList<Course> courses) {
+            if (courses == null) {
+                e.printStackTrace();
+                Toast.makeText(getActivity().getApplicationContext(),
+                        "Failed to get courses: " + e.getMessage(), Toast.LENGTH_LONG).show();
+            } else {
+                mCourseListAdapter.updateData(courses);
+            }
+        }
     }
 }

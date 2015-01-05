@@ -24,16 +24,17 @@ public class Course {
         for (int i = 0; i < a.length(); i++) {
             aliases.add(a.getString(i));
         }
-        ids = new int[obj.getJSONArray("ids").length()];
+        JSONObject info_obj = obj.getJSONObject("lab_info");
+        ids = new int[info_obj.getJSONArray("ids").length()];
         for (int i = 0; i < ids.length; i++) {
-            ids[i] = obj.getJSONArray("ids").getInt(i);
+            ids[i] = info_obj.getJSONArray("ids").getInt(i);
         }
-        active_ids = new int[obj.getJSONArray("active_ids").length()];
+        active_ids = new int[info_obj.getJSONArray("active_ids").length()];
         for (int i = 0; i < active_ids.length; i++) {
-            active_ids[i] = obj.getJSONArray("active_ids").getInt(i);
+            active_ids[i] = info_obj.getJSONArray("active_ids").getInt(i);
         }
         labs = new ArrayList<Lab>();
-        JSONArray labs_array = obj.getJSONArray("labs");
+        JSONArray labs_array = info_obj.getJSONArray("labs");
         for (int id : ids) {
             JSONObject lab_obj = labs_array.getJSONObject(id);
             String lab_name = lab_obj.getString("name");

@@ -26,19 +26,30 @@ public class CourseListAdapter extends BaseAdapter {
     Context context;
     ArrayList<Course> enumerator;
 
-    public CourseListAdapter(Context context, ArrayList<Course> enumerator) {
+    public CourseListAdapter(Context context) {
         this.context = context;
-        this.enumerator = enumerator;
+    }
+
+    public void updateData(ArrayList<Course> courses) {
+        enumerator = courses;
     }
 
     @Override
     public int getCount() {
-        return enumerator.size();
+        if (enumerator != null) {
+            return enumerator.size();
+        } else {
+            return 0;
+        }
     }
 
     @Override
     public Object getItem(int position) {
-        return enumerator.get(position);
+        if (enumerator != null) {
+            return enumerator.get(position);
+        } else {
+            return null;
+        }
     }
 
     @Override
@@ -48,49 +59,14 @@ public class CourseListAdapter extends BaseAdapter {
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
-        String viewTag = "";
         LayoutInflater inflater = (LayoutInflater) parent.getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        convertView = inflater.inflate(R.layout.list_item_lab, null);
 
-        Log.d("view", String.valueOf(position));
+        ((TextView)convertView.findViewById(R.id.list_item_lab_name)).setText("Lab Name");
+        ((TextView)convertView.findViewById(R.id.list_item_lab_mark)).setText("Marks: 5");
+        ((TextView)convertView.findViewById(R.id.list_item_lab_date)).setText("Data");
+        ((TextView)convertView.findViewById(R.id.list_item_lab_date_end)).setText("Due Date");
 
-        Course course = (Course) getItem(position);
-        Log.d("view", String.valueOf(course));
-
-        if(convertView == null) {
-                convertView = inflater.inflate(R.layout.list_item_lab, null);
-//                convertView = inflater.inflate(R.layout.list_item_course, null);
-        } else {
-            viewTag = (String) convertView.getTag();
-        }
-/*
-        if(!JSONtype.equals(viewTag)) {
-            if (JSONtype.equals("lab")) {
-                convertView = inflater.inflate(R.layout.list_item_lab, null);
-            } else if (JSONtype.equals("course")) {
-                convertView = inflater.inflate(R.layout.list_item_course, null);
-            }
-        }
-*/
-//        if(JSONtype.equals("lab")){
-//            String name = (String)document.getProperty("name");
-/*
-            String mark = (String)document.getProperty("totalMarks");
-            String date = (String)document.getProperty("date");
-            String date_end = (String)document.getProperty("dateEnd");
-*/
-            ((TextView)convertView.findViewById(R.id.list_item_lab_name)).setText("Lab Name");
-            ((TextView)convertView.findViewById(R.id.list_item_lab_mark)).setText("Marks: 5");
-            ((TextView)convertView.findViewById(R.id.list_item_lab_date)).setText("Data");
-            ((TextView)convertView.findViewById(R.id.list_item_lab_date_end)).setText("Due Date");
-/*
-        }else if(JSONtype.equals("course")){
-            String name = (String)document.getProperty("name");
-            ((TextView)convertView.findViewById(R.id.list_item_course_name)).setText(name);
-            convertView.setEnabled(false);
-            convertView.setOnClickListener(null);
-        }
-        convertView.setTag(JSONtype);
-*/
         return convertView;
     }
 }

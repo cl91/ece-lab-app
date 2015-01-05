@@ -1,5 +1,7 @@
 package com.uoa.ece.p4p.ecelabmanager.api;
 
+import android.util.Log;
+
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -24,12 +26,6 @@ public class Api {
         URL url = new URL(server_addr + "api/" +
                 ((query == null || query.isEmpty()) ? api : api+"?"+ query));
         HttpURLConnection con = (HttpURLConnection) url.openConnection();
-        con.setDoOutput(true);
-        try {
-            con.getInputStream();   // whoever designed HttpURLConnection (stupid name!) must be fucking brain damaged
-        } catch (IOException e) {
-            // do nothing. see? this is fucking stupid.
-        }
         InputStream in = new BufferedInputStream(con.getInputStream());
         BufferedReader r = new BufferedReader(new InputStreamReader(in));
         StringBuilder total = new StringBuilder();
@@ -37,6 +33,7 @@ public class Api {
         while ((line = r.readLine()) != null) {
             total.append(line);
         }
+        con.disconnect();
         return total.toString();
     }
 

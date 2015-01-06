@@ -15,10 +15,10 @@ public class Course {
     public ArrayList<String> aliases;
     public int[] ids;
     public int[] active_ids;
-    public ArrayList<Lab> labs;
+    private ArrayList<Lab> labs;
 
     public Course(JSONObject obj) throws JSONException {
-        String name = obj.getString("name");
+        name = obj.getString("name");
         JSONArray a = obj.getJSONArray("aliases");
         aliases = new ArrayList<String>();
         for (int i = 0; i < a.length(); i++) {
@@ -37,10 +37,27 @@ public class Course {
         JSONArray labs_array = info_obj.getJSONArray("labs");
         for (int id : ids) {
             JSONObject lab_obj = labs_array.getJSONObject(id);
-            String lab_name = lab_obj.getString("name");
-            int week = lab_obj.getInt("week");
             boolean is_active = Arrays.asList(active_ids).contains(id);
-            labs.add(new Lab(lab_name, week, id, is_active));
+            labs.add(new Lab(id, is_active, lab_obj));
         }
+    }
+
+    public String getNameWithAliases() {
+        String longname = name.toUpperCase();
+        if (aliases != null) {
+            for (String a : aliases) {
+                longname += "/" + a.toUpperCase();
+            }
+        }
+        return longname;
+    }
+
+    public Lab getLab(int idx) {
+        for (Lab l : labs) {
+            if (l.id == idx) {
+                return l;
+            }
+        }
+        return null;
     }
 }

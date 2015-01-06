@@ -88,8 +88,10 @@ public class LabListFragment extends Fragment {
         if(!displayMethod.equals(prefs.getString(getString(R.string.pref_display_method_key),getString(R.string.pref_display_method_default)))){
             queryResult = null;
         }
+        */
         //Start sceduler to check if any changes have been made
         scheduler = Executors.newSingleThreadScheduledExecutor();
+        /*
         scheduler.scheduleAtFixedRate(new Runnable() {
             @SuppressWarnings("ResourceType")
             @Override

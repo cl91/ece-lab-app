@@ -36,6 +36,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Objects;
 import java.util.TimeZone;
 
 public class CourseFragment extends Fragment {
@@ -63,9 +64,11 @@ public class CourseFragment extends Fragment {
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                Lab lab = (Lab) mCourseListAdapter.getItem(position);
-                Intent intent = new Intent(getActivity(), LabActivity.class);
-                startActivity(intent);
+                Object obj = mCourseListAdapter.getItem(position);
+                if (obj instanceof Lab) {
+                    Intent intent = new Intent(getActivity(), LabActivity.class);
+                    startActivity(intent);
+                }
             }
         });
 

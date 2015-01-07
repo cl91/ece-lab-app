@@ -47,4 +47,15 @@ public class Server {
         }
         return courses;
     }
+
+    public static ArrayList<Student> get_student_list(String course) throws IOException, JSONException {
+        ArrayList<Student> students = new ArrayList<Student>();
+        String reply = api.make_request("course/get-student-list", "course="+course);
+        JSONArray obj = new JSONArray(reply);
+        for (int i = 0; i < obj.length(); i++) {
+            Student student = new Student(obj.getJSONObject(i));
+            students.add(student);
+        }
+        return students;
+    }
 }

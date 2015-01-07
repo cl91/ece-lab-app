@@ -24,6 +24,7 @@ import android.widget.Toast;
 import com.uoa.ece.p4p.ecelabmanager.api.Course;
 import com.uoa.ece.p4p.ecelabmanager.api.Lab;
 import com.uoa.ece.p4p.ecelabmanager.api.Server;
+import com.uoa.ece.p4p.ecelabmanager.utility.GlobalState;
 
 import org.json.JSONException;
 
@@ -66,6 +67,7 @@ public class CourseFragment extends Fragment {
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 Object obj = mCourseListAdapter.getItem(position);
                 if (obj instanceof Lab) {
+                    GlobalState.setLab((Lab) obj);
                     Intent intent = new Intent(getActivity(), LabActivity.class);
                     startActivity(intent);
                 }

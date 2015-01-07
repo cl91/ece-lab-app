@@ -10,6 +10,7 @@ import java.util.Arrays;
  */
 public class Lab {
     public String name;
+    public String course;
     public int week;
     public int id;
     public boolean active;
@@ -17,7 +18,8 @@ public class Lab {
     public String marking_start;
     public String marking_end;
 
-    public Lab(int id, boolean active, JSONObject lab_obj) throws JSONException {
+    public Lab(String course, int id, boolean active, JSONObject lab_obj) throws JSONException {
+        this.course = course;
         this.id = id;
         this.active = active;
         name = lab_obj.getString("name");

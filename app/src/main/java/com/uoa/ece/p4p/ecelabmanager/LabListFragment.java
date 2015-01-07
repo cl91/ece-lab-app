@@ -12,6 +12,7 @@ import android.app.Fragment;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
@@ -32,6 +33,10 @@ import android.widget.Toast;
 import com.dd.processbutton.iml.ActionProcessButton;
 import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
+import com.uoa.ece.p4p.ecelabmanager.api.Course;
+import com.uoa.ece.p4p.ecelabmanager.api.Server;
+import com.uoa.ece.p4p.ecelabmanager.api.Student;
+import com.uoa.ece.p4p.ecelabmanager.utility.GlobalState;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -59,14 +64,11 @@ public class LabListFragment extends Fragment {
 
     private ActionProcessButton btnBarcodeScan;
 
-    private String activeLab = "";
-    private String courseKey;
     private ArrayAdapter<String> adapter;
 
     private final Fragment thisFragment = this;
     private Handler  handler = new Handler();
 
-    private String activeUser;
     private ScheduledExecutorService scheduler;
     private TextView statusView;
 
@@ -151,35 +153,20 @@ public class LabListFragment extends Fragment {
         //Init Variables
         super.onCreate(savedInstanceState);
         Intent intent = getActivity().getIntent();
-        if(intent != null && intent.hasExtra(Intent.EXTRA_TEXT)){
-            activeLab = intent.getStringExtra(Intent.EXTRA_TEXT);
-        }
 
         prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
         displayMethod = prefs.getString(getString(R.string.pref_display_method_key),getString(R.string.pref_display_method_default));
-/*
-        labDocument =  couchbaseSetup.getDatabaseAdmin().getDocument(activeLab);
-        courseKey = (String) labDocument.getProperty("courseKey");
 
-        //Get Course Document from Database
-        Document courseDocument =  couchbaseSetup.getDatabaseAdmin().getDocument("course::"+courseKey);
-        String labName = (String) labDocument.getProperty("name");
-        String courseName = (String) courseDocument.getProperty("name");
-        //((LabActivity)getActivity()).setActionBarTitle(courseName+" - "+labName);
-        ((LabActivity)getActivity()).setActionBarTitle(labName+" - "+courseName);
+        String labName = GlobalState.getLab().name;
+        String courseName = GlobalState.getLab().course;
+        ((LabActivity) getActivity()).setActionBarTitle(labName + " - " + courseName);
         mLabListAdapter = new LabListAdapter(getActivity(),null);
 
         //Init Autocomplete array and adapter
         autoCompleteLibrary = new ArrayList<String>();
         adapter = new ArrayAdapter<String>(getActivity(),android.R.layout.simple_dropdown_item_1line,autoCompleteLibrary);
 
-        activeUser = couchbaseSetup.getActiveUser();
-        try {
-            updateAutoCompleteAdapter(getQuery().run());
-        } catch (CouchbaseLiteException e) {
-            e.printStackTrace();
-        }
-*/
+        new GetStudentListTask(courseName).execute();
     }
 
     @Override
@@ -468,18 +455,44 @@ public class LabListFragment extends Fragment {
         Log.i(TAG,"changedEvent Finished");
 
     }
-
-    private void updateAutoCompleteAdapter(QueryEnumerator enumerator){
+*/
+    private void updateAutoCompleteAdapter(ArrayList<Student> students){
         adapter.clear();
-        for (Iterator<QueryRow> it = enumerator; it.hasNext(); ) {
-            QueryRow row = it.next();
-            Document student = row.getDocument();
-            String studentName = (String) student.getProperty("name");
-            String studentAuid = (String) student.getProperty("auid");
-            adapter.add(studentName);
-            adapter.add(studentAuid);
+        for (Student s : students) {
+            adapter.add(s.name);
+            adapter.add(s.id);
         }
         adapter.notifyDataSetChanged();
     }
-    */
+
+    class GetStudentListTask extends AsyncTask<Void, Void, ArrayList<Student>> {
+        private String course;
+        private Throwable e;
+
+        public GetStudentListTask(String course) {
+            this.course = course;
+        }
+
+        @Override
+        protected ArrayList<Student> doInBackground(Void... voids) {
+            try {
+                return Server.get_student_list(course);
+            } catch (Throwable e) {
+                this.e = e;
+                return null;
+            }
+        }
+
+        protected void onPostExecute(ArrayList<Student> students) {
+            if (students == null) {
+                e.printStackTrace();
+                Toast.makeText(getActivity().getApplicationContext(),
+                        "Failed to get student list: " + e.getMessage(), Toast.LENGTH_LONG).show();
+            } else {
+                updateAutoCompleteAdapter(students);
+            }
+        }
+    }
+
+
 }

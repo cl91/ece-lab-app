@@ -38,7 +38,7 @@ public class Course {
         for (int id : ids) {
             JSONObject lab_obj = labs_array.getJSONObject(id);
             boolean is_active = Arrays.asList(active_ids).contains(id);
-            labs.add(new Lab(id, is_active, lab_obj));
+            labs.add(new Lab(name, id, is_active, lab_obj));
         }
     }
 

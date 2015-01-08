@@ -18,28 +18,27 @@ import android.widget.BaseAdapter;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.uoa.ece.p4p.ecelabmanager.api.Student;
+
+import java.lang.reflect.Array;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
  * Created by Rawr on 29/07/2014.
  */
-public class LabListAdapter extends BaseAdapter{
+public class LabListAdapter extends BaseAdapter {
 
     private List rows;
     private Context context;
 
-    public LabListAdapter(Context context, List rows){
+    public LabListAdapter(Context context) {
         this.context = context;
-        this.rows = rows;
-    }
-
-    public void setRows(List rows){
-        this.rows = rows;
     }
 
     @Override
     public int getCount() {
-        if(rows != null) {
+        if (rows != null) {
             return rows.size();
         }else{
             return 0;
@@ -48,7 +47,11 @@ public class LabListAdapter extends BaseAdapter{
 
     @Override
     public Object getItem(int i) {
-        return rows.get(i);
+        if (rows != null) {
+            return rows.get(i);
+        } else {
+            return null;
+        }
     }
 
     @Override
@@ -63,9 +66,9 @@ public class LabListAdapter extends BaseAdapter{
 
     @Override
     public int getItemViewType(int position) {
-        if(getItem(position) instanceof Section){
+        if (getItem(position) instanceof Section){
             return 1;
-        }else{
+        } else {
             return 0;
         }
     }
@@ -74,28 +77,24 @@ public class LabListAdapter extends BaseAdapter{
     public View getView(int position, View convertView, ViewGroup parent) {
         View view = convertView;
 
-        if(getItemViewType(position) == 0){
+        if (getItemViewType(position) == 0){
             if(view == null){
                 LayoutInflater inflater = (LayoutInflater) parent.getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
                 view = (LinearLayout) inflater.inflate(R.layout.lab_list_item, parent, false);
-            }Item item = (Item) getItem(position);
+            }
+            Item item = (Item) getItem(position);
             TextView nameTextView = (TextView) view.findViewById(R.id.lab_list_item_name);
-            nameTextView.setText(item.name);
+            nameTextView.setText(item.student.name);
             TextView auidTextView = (TextView) view.findViewById(R.id.lab_list_item_auid);
-            auidTextView.setText(item.auid);
+            auidTextView.setText(item.student.id);
 
-
-            // In LabListFragment.java, it is coded as check mark shows when student is marked off.
-            // Based on the feedback, rather than small check mark, we implemented to show green background when the
-            // student is marked off.
-            // The if statement below is the code that implement this function.
-            if (item.check.equals("✓")){
-
+            // Show light green background if the student is marked off
+            // TODO: Implement mark off
+            if (item != null){
                 view.setBackgroundColor(Color.parseColor("#D9E9C2")); //HEX code of visible light green.
             }else{
                 view.setBackgroundColor(0x00000000);
             }
-
         } else { // Section
             if (view == null) {
                 LayoutInflater inflater = (LayoutInflater) parent.getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
@@ -110,7 +109,7 @@ public class LabListAdapter extends BaseAdapter{
         return view;
     }
 
-    // Update when student is marked off.
+    // Update student list.
     public void update(final List rows){
         ((Activity)context).runOnUiThread(new Runnable() {
             @Override
@@ -121,31 +120,23 @@ public class LabListAdapter extends BaseAdapter{
         });
     }
 
-
     /*
     Row data classes
      */
 
-    public static abstract class Row{}
+    public static abstract class Row {}
 
-    public static final class Section extends Row{
+    public static final class Section extends Row {
         public final String text;
-
         public Section(String text) {
             this.text = text;
         }
     }
 
-    public static final class Item extends Row{
-        public final String name;
-        public final String auid;
-        public String check;
-        public String id;
-        public Item(String name, String auid, String check, String id){
-            this.name = name;
-            this.auid = auid;
-            this.check = check;
-            this.id = id;
+    public static final class Item extends Row {
+        public final Student student;
+        public Item(Student student) {
+            this.student = student;
         }
     }
 

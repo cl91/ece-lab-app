@@ -80,6 +80,7 @@ public class LabListFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         //Init Variables
         super.onCreate(savedInstanceState);
+
         Intent intent = getActivity().getIntent();
 
         prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
@@ -93,8 +94,6 @@ public class LabListFragment extends Fragment {
         //Init auto-complete array and adapter
         autoCompleteLibrary = new ArrayList<String>();
         adapter = new ArrayAdapter<String>(getActivity(),android.R.layout.simple_dropdown_item_1line, autoCompleteLibrary);
-
-        new GetStudentListTask(courseName).execute();
     }
 
     @Override
@@ -105,67 +104,50 @@ public class LabListFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_lab_list, container, false);
-
         statusView = (TextView) rootView.findViewById(R.id.lab_list_status);
+        String courseName = GlobalState.getLab().course;
+        new GetStudentListTask(courseName).execute();
 
         // Set up auto-complete-enabled text view
         autoCompleteStudent = (AutoCompleteTextView) rootView.findViewById(R.id.autoCompleteStudent);
         autoCompleteStudent.setAdapter(adapter);
         autoCompleteStudent.setThreshold(1);
-        autoCompleteStudent.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                String input = (String) parent.getItemAtPosition(position);
-//                ArrayList<QueryRow> results= new ArrayList<QueryRow>();
-                if(android.text.TextUtils.isDigitsOnly(input)){
-                    //auid
-//                    Query query = auidQuery(input);
-//                    try {
-//                        results = couchbaseSetup.getRowsFromQueryEnumerator(query.run());
-//                    } catch (CouchbaseLiteException e) {
-//                        e.printStackTrace();
-//                    }
-//                }else{
-//                    name
-//                    Query query = nameQuery(input);
-//                    try {
-//                        results = couchbaseSetup.getRowsFromQueryEnumerator(query.run());
-//                    } catch (CouchbaseLiteException e) {
-//                        e.printStackTrace();
-//                    }
-//                }
-//                if(results != null && results.size() > 0){
-//                    String studentId = results.get(0).getDocument().getId();
-//                    Intent intent = new Intent(getActivity(), MarkingDialogActivity.class).putExtra(Intent.EXTRA_TEXT, studentId).putExtra(Intent.EXTRA_UID, (String) labDocument.getId());
-//                    startActivity(intent);
-                }
-            }
-        });
+
+        autoCompleteStudent.setOnItemClickListener(
+                new AdapterView.OnItemClickListener() {
+                    @Override
+                    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                        String input = (String) parent.getItemAtPosition(position);
+                        Student stu = null;
+                        if (android.text.TextUtils.isDigitsOnly(input)) {
+                            HashMap<String, Student> id_map = GlobalState.getStudentIDMap();
+                            stu = id_map.get(input);
+                        } else {
+                            HashMap<String, Student> name_map = GlobalState.getStudentNameMap();
+                            stu = name_map.get(input);
+                        }
+                        if (stu != null) {
+                            Intent intent = new Intent(getActivity(), MarkingDialogActivity.class)
+                                    .putExtra(Intent.EXTRA_TEXT, stu.id);
+                            startActivity(intent);
+                        }
+                    }
+                });
 
         listView = (ListView) rootView.findViewById(R.id.lab_list_student);
         listView.setAdapter(mLabListAdapter);
-        /*
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-
-                if (queryResult != null) {
-                    Log.i(TAG, "1 isStale " + String.valueOf(queryResult.isStale()));
-                }
-
-                LabListAdapter.Item item;
-                String studentId;
                 if (mLabListAdapter.getItem(i) instanceof LabListAdapter.Item) {
-                    item = (LabListAdapter.Item) mLabListAdapter.getItem(i);
-                    studentId = item.id;
-                    Intent intent = new Intent(getActivity(), MarkingDialogActivity.class).putExtra(Intent.EXTRA_TEXT, (String) studentId).putExtra(Intent.EXTRA_UID, (String) labDocument.getId());
+                    LabListAdapter.Item item = (LabListAdapter.Item) mLabListAdapter.getItem(i);
+                    Intent intent = new Intent(getActivity(), MarkingDialogActivity.class)
+                            .putExtra(Intent.EXTRA_TEXT, item.student.id);
                     startActivity(intent);
-                } else {
-                    //Do nothing
                 }
             }
         });
-*/
+
         btnBarcodeScan = (ActionProcessButton)rootView.findViewById(R.id.ScanButton);
         btnBarcodeScan.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -177,12 +159,15 @@ public class LabListFragment extends Fragment {
         return rootView;
     }
 
+    /**
+     * Get the student ID number from barcode scan result
+     * @param requestCode
+     * @param resultCode
+     * @param data
+     */
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-    // When the barcode is scanned from the student's ID card, our application get the scanned result first.
-    // Required result is the ID number of the student and it is contained in the scanned result.
-    // The codes below are getting the ID number of the student.
         if (requestCode == IntentIntegrator.REQUEST_CODE) {
             final IntentResult scanResult = IntentIntegrator.parseActivityResult(requestCode,
                     resultCode, data);
@@ -192,27 +177,17 @@ public class LabListFragment extends Fragment {
             final String result = scanResult.getContents();
             if (result != null) {
                 String id = result.substring(5, 12);
-                Log.d(TAG, id);
-/*
-                        ArrayList<QueryRow> results = new ArrayList<QueryRow>();
-                        // ID number is the substring of the string 'scanned result'
-                        String barcodeString = result.substring(5, 12);
-                        Query query = auidQuery(barcodeString);
+                HashMap<String, Student> id_map = GlobalState.getStudentIDMap();
+                if (id_map.get(id) != null) {
+                    Intent intent = new Intent(getActivity(), MarkingDialogActivity.class)
+                            .putExtra(Intent.EXTRA_TEXT, id);
+                    startActivity(intent);
+                } else {
+                    //If there is NO matching student ID number, show a toast message.
+                    Toast.makeText(getActivity(), "Student " + id + " is not in the list.",
+                            Toast.LENGTH_LONG).show();
+                }
 
-                        try {
-                            results = couchbaseSetup.getRowsFromQueryEnumerator(query.run());
-                        } catch (CouchbaseLiteException e) {
-                            e.printStackTrace();
-                        }
-                        if (results != null && results.size() > 0) {
-                            String studentId = results.get(0).getDocument().getId();
-                            Intent intent = new Intent(getActivity(), MarkingDialogActivity.class).putExtra(Intent.EXTRA_TEXT, studentId).putExtra(Intent.EXTRA_UID, (String) labDocument.getId());
-                            startActivity(intent);
-                        }else{
-                            //If there is NO matching student ID number, it shows the toast message.
-                            Toast.makeText(getActivity(),"Student not found",Toast.LENGTH_SHORT).show();
-                        }
-                        */
             }
         }
     }
@@ -267,10 +242,15 @@ public class LabListFragment extends Fragment {
 
         protected void onPostExecute(ArrayList<Student> students) {
             if (students == null) {
+                statusView.setText("Failed to get student list: " + e.getMessage());
+                statusView.setBackgroundColor(getResources().getColor(R.color.red_error));
                 e.printStackTrace();
                 Toast.makeText(getActivity().getApplicationContext(),
-                        "Failed to get student list: " + e.getMessage(), Toast.LENGTH_LONG).show();
+                        "Failed to load student list: " + e.getMessage(), Toast.LENGTH_LONG).show();
             } else {
+                statusView.setText("Loaded student list.");
+                statusView.setBackgroundColor(getResources().getColor(R.color.blue_normal));
+                GlobalState.setStudents(students);
                 updateLabListAdapter(students);
                 updateAutoCompleteAdapter(students);
             }

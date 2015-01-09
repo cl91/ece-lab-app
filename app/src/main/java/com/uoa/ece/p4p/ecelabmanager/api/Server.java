@@ -26,7 +26,8 @@ public class Server {
                     URLEncoder.encode(pass, "UTF-8"));
             JSONObject obj = new JSONObject(reply);
             String auth = obj.getString("auth");
-            if (auth == null || auth.isEmpty()) {
+            String type = obj.getString("type");
+            if (auth == null || auth.isEmpty() || !type.equals("marker")) {
                 throw new LoginFailed("Not authorised.");
             }
             api = new Api(auth);

@@ -42,4 +42,20 @@ public class GlobalState {
             student_name_map.put(s.name, s);
         }
     }
+
+    public static Student findStudentById(String id) {
+        if (student_id_map != null) {
+            return student_id_map.get(id);
+        } else {
+            return null;
+        }
+    }
+
+    public static Student findStudentByName(String id) {
+        if (student_name_map != null) {
+            return student_name_map.get(id);
+        } else {
+            return null;
+        }
+    }
 }

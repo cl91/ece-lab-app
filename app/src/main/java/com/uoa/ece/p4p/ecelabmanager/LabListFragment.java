@@ -11,21 +11,16 @@ package com.uoa.ece.p4p.ecelabmanager;
 import android.app.Fragment;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
-import android.util.Log;
-import android.view.GestureDetector;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
-import android.widget.EditText;
-import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -33,7 +28,6 @@ import android.widget.Toast;
 import com.dd.processbutton.iml.ActionProcessButton;
 import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
-import com.uoa.ece.p4p.ecelabmanager.api.Course;
 import com.uoa.ece.p4p.ecelabmanager.api.Server;
 import com.uoa.ece.p4p.ecelabmanager.api.Student;
 import com.uoa.ece.p4p.ecelabmanager.utility.GlobalState;
@@ -41,15 +35,7 @@ import com.uoa.ece.p4p.ecelabmanager.utility.GlobalState;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
 import java.util.Locale;
-import java.util.Map;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
-import java.util.regex.Pattern;
 
 /**
  * Created by Rawr on 29/07/2014.
@@ -74,18 +60,13 @@ public class LabListFragment extends Fragment {
     private TextView statusView;
 
     private SharedPreferences prefs;
-    private String displayMethod;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
-        //Init Variables
         super.onCreate(savedInstanceState);
 
-        Intent intent = getActivity().getIntent();
-
+        //Init Variables
         prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
-        displayMethod = prefs.getString(getString(R.string.pref_display_method_key),getString(R.string.pref_display_method_default));
-
         String labName = GlobalState.getLab().name;
         String courseName = GlobalState.getLab().course;
         ((LabActivity) getActivity()).setActionBarTitle(labName + " - " + courseName.toUpperCase());
@@ -120,11 +101,9 @@ public class LabListFragment extends Fragment {
                         String input = (String) parent.getItemAtPosition(position);
                         Student stu = null;
                         if (android.text.TextUtils.isDigitsOnly(input)) {
-                            HashMap<String, Student> id_map = GlobalState.getStudentIDMap();
-                            stu = id_map.get(input);
+                            stu = GlobalState.findStudentById(input);
                         } else {
-                            HashMap<String, Student> name_map = GlobalState.getStudentNameMap();
-                            stu = name_map.get(input);
+                            stu = GlobalState.findStudentByName(input);
                         }
                         if (stu != null) {
                             Intent intent = new Intent(getActivity(), MarkingDialogActivity.class)
@@ -177,8 +156,7 @@ public class LabListFragment extends Fragment {
             final String result = scanResult.getContents();
             if (result != null) {
                 String id = result.substring(5, 12);
-                HashMap<String, Student> id_map = GlobalState.getStudentIDMap();
-                if (id_map.get(id) != null) {
+                if (GlobalState.findStudentById(id) != null) {
                     Intent intent = new Intent(getActivity(), MarkingDialogActivity.class)
                             .putExtra(Intent.EXTRA_TEXT, id);
                     startActivity(intent);

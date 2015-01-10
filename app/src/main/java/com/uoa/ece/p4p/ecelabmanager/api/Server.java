@@ -4,6 +4,8 @@ package com.uoa.ece.p4p.ecelabmanager.api;
  * Created by chang on 30/12/14.
  */
 
+import android.util.Log;
+
 import com.uoa.ece.p4p.ecelabmanager.api.exception.LoginFailed;
 
 import org.json.JSONArray;
@@ -58,5 +60,22 @@ public class Server {
             students.add(student);
         }
         return students;
+    }
+
+    public static String upload_mark(Lab lab, String uid, int[] marks) throws IOException {
+        String body = "[" + marks[0];
+        for (int i = 1; i < marks.length; i++) {
+            body += ","+marks[i];
+        }
+        body += "]";
+        String reply = api.make_request_with_body("mark/" + lab.course + "/upload",
+                "lab="+lab.id+"&uid="+uid, body);
+        return reply;
+    }
+
+    public static boolean is_marked(Lab lab, String uid) throws IOException, JSONException {
+        String reply = api.make_request("mark/" + lab.course + "/get-marked", "lab=" + lab.id + "&uid=" + uid);
+        JSONArray obj = new JSONArray(reply);
+        return obj.length() > 0;
     }
 }

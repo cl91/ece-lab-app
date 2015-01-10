@@ -20,8 +20,6 @@
             android:layout_height="match_parent"
             android:layout_weight="1"
             android:layout_gravity="center_vertical">
-
-
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -31,13 +29,11 @@
                 android:gravity="center_vertical"
                 android:id="@+id/studentNameLastFirst" />
 
-
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
                 android:layout_weight="1">
-
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent"
@@ -45,7 +41,6 @@
                     android:gravity="center_vertical"
                     android:textAppearance="?android:attr/textAppearanceMedium"
                     />
-
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -54,49 +49,30 @@
                     android:layout_weight="1"
                     android:gravity="center_vertical"
                     android:id="@+id/studentIDnumber" />
-
-
             </LinearLayout>
+
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
                 android:layout_weight="1">
-
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent"
-                    android:text="UPI:    "
+                    android:text="Mark: "
                     android:gravity="center_vertical"
                     android:textAppearance="?android:attr/textAppearanceMedium"
                     />
-
-                <TextView
+                <Spinner
+                    android:id="@+id/total_mark_spinner"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:textAppearance="?android:attr/textAppearanceMedium"
-                    android:text="tyou044"
-                    android:layout_weight="1"
-                    android:gravity="center_vertical"
-                    android:id="@+id/studentUPI" />
-
-
+                    android:prompt="@string/total_mark_prompt" />
             </LinearLayout>
 
         </LinearLayout>
 
-        <NumberPicker
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_horizontal"
-            android:id="@+id/markingNumberPicker"
-
-            />
-
-
     </LinearLayout>
-
-
 
     <LinearLayout
         android:orientation="horizontal"
@@ -113,20 +89,11 @@
             />
 
         <Button
-
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:text="Confirm"
             android:layout_weight="1"
             android:id="@+id/markDialogConfirmButton" />
-
-
-
-
-
     </LinearLayout>
-
-
-
 
 </LinearLayout>

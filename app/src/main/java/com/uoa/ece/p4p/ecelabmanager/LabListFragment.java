@@ -154,7 +154,7 @@ public class LabListFragment extends Fragment {
                 return;
             }
             final String result = scanResult.getContents();
-            if (result != null) {
+            if (result != null && result.length() >= 14) {
                 String id = result.substring(5, 12);
                 if (GlobalState.findStudentById(id) != null) {
                     Intent intent = new Intent(getActivity(), MarkingDialogActivity.class)

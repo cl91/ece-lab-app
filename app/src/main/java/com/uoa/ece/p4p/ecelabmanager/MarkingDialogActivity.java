@@ -13,34 +13,32 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.os.Bundle;
-import android.util.Log;
-import android.view.Gravity;
-import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
-import android.widget.NumberPicker;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.uoa.ece.p4p.ecelabmanager.api.Lab;
+import com.uoa.ece.p4p.ecelabmanager.api.Server;
 import com.uoa.ece.p4p.ecelabmanager.api.Student;
 import com.uoa.ece.p4p.ecelabmanager.utility.GlobalState;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.ArrayList;
+import java.util.List;
 
 public class MarkingDialogActivity extends Activity {
     final Context context = this;
-    private Student activeStudent;
-    private Lab activeLab;
-    private int labTotal;
+    private Student stu;
+    private Lab lab;
     private TextView textViewName;
-    private TextView textViewAuid;
-    private TextView textViewUpi;
+    private TextView textViewId;
     private Button cancelButton;
     private Button confirmButton;
 
@@ -50,140 +48,49 @@ public class MarkingDialogActivity extends Activity {
         setContentView(R.layout.activity_dialog_mark);
 
         textViewName = (TextView) this.findViewById(R.id.studentNameLastFirst);
-        textViewAuid = (TextView) this.findViewById(R.id.studentIDnumber);
-        textViewUpi = (TextView) this.findViewById(R.id.studentUPI);
+        textViewId = (TextView) this.findViewById(R.id.studentIDnumber);
         cancelButton = (Button) findViewById(R.id.markDialogCancelButton);
         confirmButton = (Button) findViewById(R.id.markDialogConfirmButton);
 
         Intent intent = this.getIntent();
-        if (intent != null && intent.hasExtra(Intent.EXTRA_TEXT)){
-            activeStudent = GlobalState.findStudentById(intent.getStringExtra(Intent.EXTRA_TEXT));
+        if (intent != null && intent.hasExtra(Intent.EXTRA_TEXT)) {
+            stu = GlobalState.findStudentById(intent.getStringExtra(Intent.EXTRA_TEXT));
         }
-        activeLab = GlobalState.getLab();
-
-        final String labName = activeLab.name;
-        labTotal = activeLab.total_mark;
-
-        //Name, ID number and UPI will be provided from the student database of Couchbase
-        //final Document student = couchbaseSetup.getDatabaseStudents().getDocument(activeStudent);
-        final String studentName = activeStudent.name;
-        final String studentAuid = activeStudent.id;
-        String studentUpi = activeStudent.upi;
+        lab = GlobalState.getLab();
+        final Mark mark = new Mark(lab.getNrCriteria());
 
         // The student information received will be used as text in the dialog to display.
-        textViewName.setText(studentName);
-        textViewAuid.setText(studentAuid);
-        textViewUpi.setText(studentUpi);
+        textViewName.setText(stu.name);
+        textViewId.setText(stu.id);
+
+        Spinner spinner = (Spinner) findViewById(R.id.total_mark_spinner);
+        List<String> list = new ArrayList<String>();
+        list.add(Integer.toString(0));
+        for (int i = 1; i <= lab.total_mark; i++) {
+            list.add(Integer.toString(i));
+        }
+        ArrayAdapter<String> dataAdapter = new ArrayAdapter<String>(this,
+                android.R.layout.simple_spinner_item, list);
+        dataAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spinner.setAdapter(dataAdapter);
+        spinner.setOnItemSelectedListener(
+                new AdapterView.OnItemSelectedListener() {
+                    @Override
+                    public void onItemSelected(AdapterView<?> parent, View view, int i, long l) {
+                        mark.setMark(0, i);
+                    }
+
+                    @Override
+                    public void onNothingSelected(AdapterView<?> parent) {
+                        mark.setMark(0, 0);
+                    }
+                });
 
         // Confirm button marks off the student.
         confirmButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                /*)
-                Log.d("Part4ProjectLabApplication",(previouslyMarked ? "true" : "false"));
-                if (previouslyMarked){
-                    //Check for overwrite confirmation
-                    AlertDialog.Builder builder1 = new AlertDialog.Builder(context);
-                    builder1.setTitle("Confirm Mark Overwrite?");
-                    builder1.setMessage("Are you sure you want to overwrite the previous mark?");
-                    builder1.setCancelable(true);
-                    builder1.setPositiveButton("Confirm",
-                            new DialogInterface.OnClickListener() {
-                                public void onClick(DialogInterface dialog, int id) {
-                                    activeMark = String.valueOf(numberPicker.getValue());
-                                    if(previousMark != activeMark || activeMark.equals("0")){
-                                        HashMap<String,String> record = new HashMap<String,String>();
-                                        record.put("mark", activeMark);
-                                        record.put("time", Long.toString(System.currentTimeMillis()));
-                                        marks.put(activeUser,record);
-                                        HashMap<String,HashMap<String,HashMap<String,String>>> temp = (HashMap<String, HashMap<String, HashMap<String, String>>>) student.getProperty("labMarks");
-                                        temp.put(activeLab, marks);
-                                        properties.put("labMarks",temp);
-                                        try {
-                                            student.putProperties(properties);
-                                        } catch (CouchbaseLiteException e) {
-                                            e.printStackTrace();
-                                        }
-                                    }
-
-                                    //Show toast message that who is marked by TA.
-                                    //Toast.makeText(getApplicationContext(),"You have marked "+studentName,Toast.LENGTH_SHORT).show();
-                                    LayoutInflater inflater = getLayoutInflater();
-                                    View layout = inflater.inflate(R.layout.toast_layout, (ViewGroup) findViewById(R.id.toast_layout_root));
-                                    TextView toastStudent = (TextView) layout.findViewById(R.id.toast_studentname);
-                                    toastStudent.setText(studentName);
-                                    TextView toastAuid = (TextView) layout.findViewById(R.id.toast_studentauid);
-                                    toastAuid.setText(studentAuid);
-                                    TextView toastLab = (TextView) layout.findViewById(R.id.toast_lab);
-                                    toastLab.setText(labName);
-                                    TextView toastMark = (TextView) layout.findViewById(R.id.toast_mark);
-                                    toastMark.setText(activeMark);
-                                    TextView toastMaxMark = (TextView) layout.findViewById(R.id.toast_maxmark);
-                                    toastMaxMark.setText(labTotal);
-
-                                    Toast toast = new Toast(getApplicationContext());
-                                    //toast.setGravity(Gravity.CENTER_VERTICAL,0,0);
-                                    toast.setGravity(Gravity.FILL_HORIZONTAL, 0, 0);
-                                    toast.setDuration(Toast.LENGTH_LONG);
-                                    toast.setView(layout);
-                                    toast.show();
-
-                                    finish();
-                                }
-                            });
-                    builder1.setNegativeButton("Cancel",
-                            new DialogInterface.OnClickListener() {
-                                public void onClick(DialogInterface dialog, int id) {
-                                    finish();
-                                }
-                            });
-
-                    AlertDialog alert11 = builder1.create();
-                    alert11.show();
-                }else{
-                    activeMark = String.valueOf(numberPicker.getValue());
-                    if(previousMark != activeMark || activeMark.equals("0")){
-                        HashMap<String,String> record = new HashMap<String,String>();
-                        record.put("mark", activeMark);
-                        record.put("time", Long.toString(System.currentTimeMillis()));
-                        marks.put(activeUser,record);
-                        HashMap<String,HashMap<String,HashMap<String,String>>> temp = (HashMap<String, HashMap<String, HashMap<String, String>>>) student.getProperty("labMarks");
-                        temp.put(activeLab, marks);
-                        properties.put("labMarks",temp);
-                        try {
-                            student.putProperties(properties);
-                        } catch (CouchbaseLiteException e) {
-                            e.printStackTrace();
-                        }
-                    }
-
-                    //Show toast message that who is marked by TA.
-                    //Toast.makeText(getApplicationContext(),"You have marked "+studentName,Toast.LENGTH_SHORT).show();
-                    LayoutInflater inflater = getLayoutInflater();
-                    View layout = inflater.inflate(R.layout.toast_layout, (ViewGroup) findViewById(R.id.toast_layout_root));
-                    TextView toastStudent = (TextView) layout.findViewById(R.id.toast_studentname);
-                    toastStudent.setText(studentName);
-                    TextView toastAuid = (TextView) layout.findViewById(R.id.toast_studentauid);
-                    toastAuid.setText(studentAuid);
-                    TextView toastLab = (TextView) layout.findViewById(R.id.toast_lab);
-                    toastLab.setText(labName);
-                    TextView toastMark = (TextView) layout.findViewById(R.id.toast_mark);
-                    toastMark.setText(activeMark);
-                    TextView toastMaxMark = (TextView) layout.findViewById(R.id.toast_maxmark);
-                    toastMaxMark.setText(labTotal);
-
-                    Toast toast = new Toast(getApplicationContext());
-                    //toast.setGravity(Gravity.CENTER_VERTICAL,0,0);
-                    toast.setGravity(Gravity.FILL_HORIZONTAL, 0, 0);
-                    toast.setDuration(Toast.LENGTH_LONG);
-                    toast.setView(layout);
-                    toast.show();
-
-                    finish();
-
-                }
-                */
-                finish();
+                new CheckIfMarkedOffTask(lab, stu.id, mark).execute();
             }
         });
 
@@ -213,5 +120,109 @@ public class MarkingDialogActivity extends Activity {
             return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    class CheckIfMarkedOffTask extends AsyncTask<Void, Void, Boolean> {
+        private Lab lab;
+        private String uid;
+        private Mark mark;
+        private Throwable e = null;
+
+        public CheckIfMarkedOffTask(Lab lab, String uid, Mark mark) {
+            this.lab = lab;
+            this.uid = uid;
+            this.mark = mark;
+        }
+
+        @Override
+        protected Boolean doInBackground(Void... voids) {
+            try {
+                return Server.is_marked(lab, uid);
+            } catch (Throwable e1) {
+                e = e1;
+                return null;
+            }
+        }
+
+        @Override
+        protected void onPostExecute(Boolean is_marked) {
+            if (e != null) {
+                Toast.makeText(getApplicationContext(),
+                        "Failed to load student's previous marks: " + e.getMessage(), Toast.LENGTH_LONG).show();
+            } else if (is_marked) {
+                // Prompt user to confirm overwriting
+                AlertDialog.Builder builder1 = new AlertDialog.Builder(context);
+                builder1.setTitle("Confirm Mark Overwrite?");
+                builder1.setMessage("Are you sure you want to overwrite the previous mark?");
+                builder1.setCancelable(true);
+                builder1.setPositiveButton("Confirm", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        new UploadMarkTask(lab, uid, mark).execute();
+                    }
+                });
+                builder1.setNegativeButton("Cancel",
+                        new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int id) {
+                                finish();
+                            }
+                        });
+                AlertDialog alert11 = builder1.create();
+                alert11.show();
+            } else {
+                new UploadMarkTask(lab, uid, mark).execute();
+            }
+        }
+    }
+
+    class UploadMarkTask extends AsyncTask<Void, Void, String> {
+        private Lab lab;
+        private String uid;
+        private Mark mark;
+        private Throwable e = null;
+
+        public UploadMarkTask(Lab lab, String uid, Mark mark) {
+            this.lab = lab;
+            this.uid = uid;
+            this.mark = mark;
+        }
+
+        @Override
+        protected String doInBackground(Void... voids) {
+            try {
+                return Server.upload_mark(lab, uid, mark.getMarks());
+            } catch (Throwable e1) {
+                e = e1;
+                return null;
+            }
+        }
+
+        @Override
+        protected void onPostExecute(String reply) {
+            if (e != null) {
+                e.printStackTrace();
+                Toast.makeText(getApplicationContext(),
+                        "Failed to update mark for " + uid + ": " + e.getMessage(),
+                        Toast.LENGTH_LONG).show();
+            } else if (reply != null) {
+                Toast.makeText(getApplicationContext(), reply, Toast.LENGTH_LONG).show();
+            }
+            finish();
+        }
+    }
+
+    private class Mark {
+        private int[] marks;
+
+        public Mark(int size) {
+            marks = new int[size];
+        }
+
+        public void setMark(int i, int mark) {
+            marks[i] = mark;
+        }
+
+        public int[] getMarks() {
+            return marks;
+        }
     }
 }

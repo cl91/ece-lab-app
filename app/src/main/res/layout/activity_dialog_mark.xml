@@ -52,6 +52,7 @@
             </LinearLayout>
 
             <LinearLayout
+                android:id="@+id/number_based_layout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
@@ -68,6 +69,19 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:prompt="@string/total_mark_prompt" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/criteria_based_layout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_weight="1">
+                <ListView
+                    android:id="@+id/criteria_list_view"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    />
             </LinearLayout>
 
         </LinearLayout>

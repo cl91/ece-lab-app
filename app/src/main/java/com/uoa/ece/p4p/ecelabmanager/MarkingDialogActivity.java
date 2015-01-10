@@ -21,6 +21,9 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.CheckedTextView;
+import android.widget.LinearLayout;
+import android.widget.ListView;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -63,28 +66,64 @@ public class MarkingDialogActivity extends Activity {
         textViewName.setText(stu.name);
         textViewId.setText(stu.id);
 
-        Spinner spinner = (Spinner) findViewById(R.id.total_mark_spinner);
-        List<String> list = new ArrayList<String>();
-        list.add(Integer.toString(0));
-        for (int i = 1; i <= lab.total_mark; i++) {
-            list.add(Integer.toString(i));
-        }
-        ArrayAdapter<String> dataAdapter = new ArrayAdapter<String>(this,
-                android.R.layout.simple_spinner_item, list);
-        dataAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        spinner.setAdapter(dataAdapter);
-        spinner.setOnItemSelectedListener(
-                new AdapterView.OnItemSelectedListener() {
-                    @Override
-                    public void onItemSelected(AdapterView<?> parent, View view, int i, long l) {
-                        mark.setMark(0, i);
-                    }
+        if (lab.marking_type.equals("number")) {        // total-mark-based marking
+            ((LinearLayout)this.findViewById(R.id.number_based_layout))
+                    .setVisibility(LinearLayout.VISIBLE);
+            ((LinearLayout)this.findViewById(R.id.criteria_based_layout))
+                    .setVisibility(LinearLayout.GONE);
+            Spinner spinner = (Spinner) findViewById(R.id.total_mark_spinner);
+            List<String> list = new ArrayList<String>();
+            list.add(Integer.toString(0));
+            for (int i = 1; i <= lab.total_mark; i++) {
+                list.add(Integer.toString(i));
+            }
+            ArrayAdapter<String> dataAdapter = new ArrayAdapter<String>(this,
+                    android.R.layout.simple_spinner_item, list);
+            dataAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+            spinner.setAdapter(dataAdapter);
+            spinner.setOnItemSelectedListener(
+                    new AdapterView.OnItemSelectedListener() {
+                        @Override
+                        public void onItemSelected(AdapterView<?> parent, View view, int i, long l) {
+                            mark.setMark(0, i);
+                        }
 
-                    @Override
-                    public void onNothingSelected(AdapterView<?> parent) {
-                        mark.setMark(0, 0);
+                        @Override
+                        public void onNothingSelected(AdapterView<?> parent) {
+                            mark.setMark(0, 0);
+                        }
+                    });
+        } else {
+            ((LinearLayout)this.findViewById(R.id.number_based_layout))
+                    .setVisibility(LinearLayout.GONE);
+            ((LinearLayout)this.findViewById(R.id.criteria_based_layout))
+                    .setVisibility(LinearLayout.VISIBLE);
+            ArrayList<String> crit_text = new ArrayList<String>();
+            if (lab.marking_type.equals("criteria")) {   // criteria-based marking
+                for (Lab.Criterion crit : lab.criteria) {
+                    crit_text.add(crit.text);
+                }
+            } else if (lab.marking_type.equals("attendance")) { // attendance-based marking
+                crit_text.add("Student attended the tutorial.");
+            }
+            ArrayAdapter<String> adapter = new ArrayAdapter<String>(this,
+                    android.R.layout.simple_list_item_multiple_choice, crit_text);
+            ListView listView = (ListView) findViewById(R.id.criteria_list_view);
+            listView.setAdapter(adapter);
+            listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                @Override
+                public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                    CheckedTextView checkedTextView = ((CheckedTextView)view);
+                    boolean is_checked = !checkedTextView.isChecked();
+                    checkedTextView.setChecked(is_checked);
+                    if (lab.marking_type.equals("criteria")) {
+                        mark.setMark(i, is_checked ? lab.criteria.get(i).mark : 0);
+                    } else if (lab.marking_type.equals("attendance")) {
+                        mark.setMark(0, is_checked ? lab.total_mark : 0);
                     }
-                });
+                }
+            });
+        }
 
         // Confirm button marks off the student.
         confirmButton.setOnClickListener(new View.OnClickListener() {
@@ -148,7 +187,8 @@ public class MarkingDialogActivity extends Activity {
         protected void onPostExecute(Boolean is_marked) {
             if (e != null) {
                 Toast.makeText(getApplicationContext(),
-                        "Failed to load student's previous marks: " + e.getMessage(), Toast.LENGTH_LONG).show();
+                        "Failed to load student's previous marks: " + e.getMessage(),
+                        Toast.LENGTH_LONG).show();
             } else if (is_marked) {
                 // Prompt user to confirm overwriting
                 AlertDialog.Builder builder1 = new AlertDialog.Builder(context);
@@ -204,7 +244,8 @@ public class MarkingDialogActivity extends Activity {
                         "Failed to update mark for " + uid + ": " + e.getMessage(),
                         Toast.LENGTH_LONG).show();
             } else if (reply != null) {
-                Toast.makeText(getApplicationContext(), reply, Toast.LENGTH_LONG).show();
+                Toast.makeText(getApplicationContext(), "Marked off student " + stu.name + ".",
+                        Toast.LENGTH_LONG).show();
             }
             finish();
         }
@@ -215,6 +256,9 @@ public class MarkingDialogActivity extends Activity {
 
         public Mark(int size) {
             marks = new int[size];
+            for (int i = 0; i < size; i++) {
+                marks[i] = 0;
+            }
         }
 
         public void setMark(int i, int mark) {

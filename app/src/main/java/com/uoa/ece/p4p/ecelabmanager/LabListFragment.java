@@ -28,6 +28,7 @@ import android.widget.Toast;
 import com.dd.processbutton.iml.ActionProcessButton;
 import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
+import com.uoa.ece.p4p.ecelabmanager.api.Lab;
 import com.uoa.ece.p4p.ecelabmanager.api.Server;
 import com.uoa.ece.p4p.ecelabmanager.api.Student;
 import com.uoa.ece.p4p.ecelabmanager.utility.GlobalState;
@@ -86,8 +87,7 @@ public class LabListFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_lab_list, container, false);
         statusView = (TextView) rootView.findViewById(R.id.lab_list_status);
-        String courseName = GlobalState.getLab().course;
-        new GetStudentListTask(courseName).execute();
+        new GetStudentListTask(GlobalState.getLab()).execute();
 
         // Set up auto-complete-enabled text view
         autoCompleteStudent = (AutoCompleteTextView) rootView.findViewById(R.id.autoCompleteStudent);
@@ -170,12 +170,16 @@ public class LabListFragment extends Fragment {
         }
     }
 
+    public void markOff(String id) {
+        mLabListAdapter.markOff(id);
+    }
+
     class GetStudentListTask extends AsyncTask<Void, Void, ArrayList<Student>> {
-        private String course;
+        private Lab lab;
         private Throwable e;
 
-        public GetStudentListTask(String course) {
-            this.course = course;
+        public GetStudentListTask(Lab lab) {
+            this.lab = lab;
         }
 
         private void updateAutoCompleteAdapter(ArrayList<Student> students){
@@ -204,7 +208,8 @@ public class LabListFragment extends Fragment {
         @Override
         protected ArrayList<Student> doInBackground(Void... voids) {
             try {
-                ArrayList<Student> students = Server.get_student_list(course);
+                ArrayList<Student> students = Server.get_student_list(lab.course,
+                        Integer.toString(lab.id));
                 Collections.sort(students, new Comparator<Student>() {
                     @Override
                     public int compare(Student student, Student student2) {

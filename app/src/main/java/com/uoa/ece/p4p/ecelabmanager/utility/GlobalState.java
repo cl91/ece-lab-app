@@ -14,6 +14,7 @@ public class GlobalState {
     private static ArrayList<Student> students;
     private static HashMap<String, Student> student_id_map = new HashMap<String, Student>();;
     private static HashMap<String, Student> student_name_map = new HashMap<String, Student>();;
+    public static String marked_off_id;
 
     public static Lab getLab() {
         return lab;

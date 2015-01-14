@@ -15,6 +15,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 
 import com.uoa.ece.p4p.ecelabmanager.api.Lab;
+import com.uoa.ece.p4p.ecelabmanager.utility.GlobalState;
 
 
 public class LabActivity extends Activity {
@@ -29,6 +30,16 @@ public class LabActivity extends Activity {
 
     public void setActionBarTitle(String title){
         getActionBar().setTitle(title);
+    }
+
+    @Override
+    public void onResume() {
+        LabListFragment f = (LabListFragment) getFragmentManager().findFragmentById(R.id.container);
+        if (GlobalState.marked_off_id != null && f != null) {
+            f.markOff(GlobalState.marked_off_id);
+            GlobalState.marked_off_id = null;
+        }
+        super.onResume();
     }
 
 }

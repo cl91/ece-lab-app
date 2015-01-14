@@ -51,9 +51,9 @@ public class Server {
         return courses;
     }
 
-    public static ArrayList<Student> get_student_list(String course) throws IOException, JSONException {
+    public static ArrayList<Student> get_student_list(String course, String lab) throws IOException, JSONException {
         ArrayList<Student> students = new ArrayList<Student>();
-        String reply = api.make_request("course/get-student-list", "course="+course);
+        String reply = api.make_request("course/" + course + "/get-student-list", "lab="+lab+"&merge=true");
         JSONArray obj = new JSONArray(reply);
         for (int i = 0; i < obj.length(); i++) {
             Student student = new Student(obj.getJSONObject(i));

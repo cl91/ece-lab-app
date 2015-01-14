@@ -22,6 +22,7 @@ import com.uoa.ece.p4p.ecelabmanager.api.Student;
 
 import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 /**
@@ -31,6 +32,7 @@ public class LabListAdapter extends BaseAdapter {
 
     private List rows;
     private Context context;
+    private HashMap<String, Item> stu_id_map;
 
     public LabListAdapter(Context context) {
         this.context = context;
@@ -88,9 +90,7 @@ public class LabListAdapter extends BaseAdapter {
             TextView auidTextView = (TextView) view.findViewById(R.id.lab_list_item_auid);
             auidTextView.setText(item.student.id);
 
-            // Show light green background if the student is marked off
-            // TODO: Implement mark off
-            if (item != null){
+            if (item.student.marked){
                 view.setBackgroundColor(Color.parseColor("#D9E9C2")); //HEX code of visible light green.
             }else{
                 view.setBackgroundColor(0x00000000);
@@ -115,6 +115,26 @@ public class LabListAdapter extends BaseAdapter {
             @Override
             public void run() {
                 LabListAdapter.this.rows = rows;
+                LabListAdapter.this.stu_id_map = new HashMap<String, Item>();
+                for (Object r : rows) {
+                    if (r instanceof Item) {
+                        stu_id_map.put(((Item) r).student.id, (Item ) r);
+                    }
+                }
+                notifyDataSetChanged();
+            }
+        });
+    }
+
+    // Mark student off
+    public void markOff(final String id) {
+        ((Activity) context).runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                Item item = stu_id_map.get(id);
+                if (item != null) {
+                    item.student.marked = true;
+                }
                 notifyDataSetChanged();
             }
         });

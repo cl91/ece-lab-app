@@ -246,6 +246,7 @@ public class MarkingDialogActivity extends Activity {
             } else if (reply != null) {
                 Toast.makeText(getApplicationContext(), "Marked off student " + stu.name + ".",
                         Toast.LENGTH_LONG).show();
+                GlobalState.marked_off_id = stu.id;
             }
             finish();
         }

@@ -11,11 +11,13 @@ public class Student {
     public String id;
     public String upi;
     public String email;
+    public boolean marked;
 
     public Student(JSONObject obj) throws JSONException {
         name = obj.getString("name");
         id = obj.getString("id");
         upi = obj.getString("upi");
         email = obj.getString("email");
+        marked = obj.getBoolean("marked");
     }
 }

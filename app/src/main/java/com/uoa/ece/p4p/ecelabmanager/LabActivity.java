@@ -36,7 +36,7 @@ public class LabActivity extends Activity {
     public void onResume() {
         LabListFragment f = (LabListFragment) getFragmentManager().findFragmentById(R.id.container);
         if (GlobalState.marked_off_id != null && f != null) {
-            f.markOff(GlobalState.marked_off_id);
+            f.markOff(GlobalState.marked_off_id, GlobalState.marked_off_total_mark);
             GlobalState.marked_off_id = null;
         }
         super.onResume();

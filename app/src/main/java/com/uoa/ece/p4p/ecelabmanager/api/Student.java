@@ -12,6 +12,7 @@ public class Student {
     public String upi;
     public String email;
     public boolean marked;
+    public int total_mark;
 
     public Student(JSONObject obj) throws JSONException {
         name = obj.getString("name");
@@ -19,5 +20,6 @@ public class Student {
         upi = obj.getString("upi");
         email = obj.getString("email");
         marked = obj.getBoolean("marked");
+        total_mark = obj.getInt("total_mark");
     }
 }

@@ -87,6 +87,12 @@ public class LabListAdapter extends BaseAdapter {
             Item item = (Item) getItem(position);
             TextView nameTextView = (TextView) view.findViewById(R.id.lab_list_item_name);
             nameTextView.setText(item.student.name);
+            TextView markTextView = (TextView) view.findViewById(R.id.lab_list_item_check);
+            if (item.student.marked) {
+                markTextView.setText(Integer.toString(item.student.total_mark));
+            } else {
+                markTextView.setText("");
+            }
             TextView auidTextView = (TextView) view.findViewById(R.id.lab_list_item_auid);
             auidTextView.setText(item.student.id);
 
@@ -127,7 +133,7 @@ public class LabListAdapter extends BaseAdapter {
     }
 
     // Mark student off
-    public void markOff(final String id, final boolean hide_marked_off) {
+    public void markOff(final String id, final int mark, final boolean hide_marked_off) {
         ((Activity) context).runOnUiThread(new Runnable() {
             @Override
             public void run() {
@@ -135,6 +141,7 @@ public class LabListAdapter extends BaseAdapter {
                 if (item != null) {
                     if (!hide_marked_off) {
                         item.student.marked = true;
+                        item.student.total_mark = mark;
                     } else {
                         rows.remove(item);
                     }

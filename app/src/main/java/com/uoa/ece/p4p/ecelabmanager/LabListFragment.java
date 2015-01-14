@@ -173,8 +173,8 @@ public class LabListFragment extends Fragment {
         }
     }
 
-    public void markOff(String id) {
-        mLabListAdapter.markOff(id, hide_marked_off);
+    public void markOff(String id, int mark) {
+        mLabListAdapter.markOff(id, mark, hide_marked_off);
     }
 
     class GetStudentListTask extends AsyncTask<Void, Void, ArrayList<Student>> {

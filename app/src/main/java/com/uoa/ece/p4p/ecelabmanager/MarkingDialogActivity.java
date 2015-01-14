@@ -247,6 +247,7 @@ public class MarkingDialogActivity extends Activity {
                 Toast.makeText(getApplicationContext(), "Marked off student " + stu.name + ".",
                         Toast.LENGTH_LONG).show();
                 GlobalState.marked_off_id = stu.id;
+                GlobalState.marked_off_total_mark = mark.getTotalMarks();
             }
             finish();
         }
@@ -268,6 +269,16 @@ public class MarkingDialogActivity extends Activity {
 
         public int[] getMarks() {
             return marks;
+        }
+
+        public int getTotalMarks() {
+            int total_mark = 0;
+            if (marks != null) {
+                for (int i : marks) {
+                    total_mark += i;
+                }
+            }
+            return total_mark;
         }
     }
 }

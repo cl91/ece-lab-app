@@ -127,13 +127,17 @@ public class LabListAdapter extends BaseAdapter {
     }
 
     // Mark student off
-    public void markOff(final String id) {
+    public void markOff(final String id, final boolean hide_marked_off) {
         ((Activity) context).runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 Item item = stu_id_map.get(id);
                 if (item != null) {
-                    item.student.marked = true;
+                    if (!hide_marked_off) {
+                        item.student.marked = true;
+                    } else {
+                        rows.remove(item);
+                    }
                 }
                 notifyDataSetChanged();
             }

@@ -61,6 +61,7 @@ public class LabListFragment extends Fragment {
     private TextView statusView;
 
     private SharedPreferences prefs;
+    private boolean hide_marked_off;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -68,6 +69,8 @@ public class LabListFragment extends Fragment {
 
         //Init Variables
         prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
+        hide_marked_off = prefs.getBoolean(getString(R.string.pref_hide_marked_off_key), false);
+
         String labName = GlobalState.getLab().name;
         String courseName = GlobalState.getLab().course;
         ((LabActivity) getActivity()).setActionBarTitle(labName + " - " + courseName.toUpperCase());
@@ -171,7 +174,7 @@ public class LabListFragment extends Fragment {
     }
 
     public void markOff(String id) {
-        mLabListAdapter.markOff(id);
+        mLabListAdapter.markOff(id, hide_marked_off);
     }
 
     class GetStudentListTask extends AsyncTask<Void, Void, ArrayList<Student>> {
@@ -200,7 +203,9 @@ public class LabListFragment extends Fragment {
                     rows.add(new LabListAdapter.Section(firstLetter));
                     previousLetter = firstLetter;
                 }
-                rows.add(new LabListAdapter.Item(s));
+                if (!s.marked || !hide_marked_off) {
+                    rows.add(new LabListAdapter.Item(s));
+                }
             }
             mLabListAdapter.update(rows);
         }

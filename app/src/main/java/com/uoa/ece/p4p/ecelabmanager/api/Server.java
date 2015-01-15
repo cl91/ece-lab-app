@@ -74,7 +74,7 @@ public class Server {
     }
 
     public static boolean is_marked(Lab lab, String uid) throws IOException, JSONException {
-        String reply = api.make_request("mark/" + lab.course + "/get-marked", "lab=" + lab.id + "&uid=" + uid);
+        String reply = api.make_request("mark/" + lab.course + "/get-marks", "lab=" + lab.id + "&uid=" + uid);
         JSONArray obj = new JSONArray(reply);
         return obj.length() > 0;
     }

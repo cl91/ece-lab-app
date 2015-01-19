@@ -94,6 +94,9 @@ public class CourseFragment extends Fragment {
                 e.printStackTrace();
                 Toast.makeText(getActivity().getApplicationContext(),
                         "Failed to get courses: " + e.getMessage(), Toast.LENGTH_LONG).show();
+            } if (courses.isEmpty()) {
+                Toast.makeText(getActivity().getApplicationContext(),
+                        "You don't have any course to mark.", Toast.LENGTH_LONG).show();
             } else {
                 mCourseListAdapter.updateData(courses);
             }

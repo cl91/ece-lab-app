@@ -15,7 +15,7 @@ import java.net.URL;
  * Created by chang on 30/12/14.
  */
 public class Api {
-    final private static String server_addr = "http://192.168.20.9:3000/";
+    final private static String server_addr = "http://engsspdev01.foe.auckland.ac.nz:3000/";
 
     private String auth;
 
